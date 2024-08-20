@@ -1,8 +1,8 @@
 // Project to do a simple to build avionic instrument based on Arduino IDE
-// Projected to be used in REAL aircraft no guarantee or certification of correct use in flight is given.
-// RedPig is a name refering manga pilot you know.
-// Project using OTA, rotary encoder  , 4 digit and 1 sensor BMP280
-// MCU ESP32-c2 used because OTA and i'm tired of speed and space of Arduino classic board. It is a shame but i'm lazy.
+// Projected to be used in REAL aircraft BUT no guarantee or certification of correct use in flight is given.
+// RedPig is a name refering anime pilot you know.
+// Project using OTA, rotary encoder  , 4 digit and 1 sensor BMP280.
+// MCU ESP32-c2 used because OTA and i'm tired of speed and memspace of Arduino classic board. It is a shame but i'm lazy.
 // Mission: easy to build and light (3d PetG printed), easy to solder (dupont wiring), easy to use (one measure).
 //      A
 //     ---
@@ -25,7 +25,7 @@ const char* password = "You Password";  // Change to your password
 M1637Display display(CLK, DIO); // Create an instance of the TM1637Display
 //Rotarry encoder 
 //Defining pins
-//Arduino interrupt pins: 2, 3.
+//Arduino interrupt pins: 4, 5.
 const int RotaryCLK = PB3; //CLK pin on the rotary encoder
 const int RotaryDT = PB4; //DT pin on the rotary encoder
 const int PushButton = PB5; //Button to enter/exit menu
@@ -42,15 +42,17 @@ bool refreshSelection = false; //refreshes selection (> / X)
 #define SEA_LEVEL_PRESSURE_HPA      1026.25 //Adjust sea level for altitude calculation
 ErriezBMX280 bmx280 = ErriezBMX280(0x76); ////Create BMX280 object I2C address 0x76 or 0x77
 
-//___________SETUP
-void setup() {
-  display.clear();    
-  display.setBrightness(5);  // Set the display brightness (0-7)
-  for (int i=0; i <= 9999; i++){
-     display.showNumberDec(i, true);  // i=value, true to padd the blank segments with 0
-     delay(10);
-  };
-  uint8_t data[] = { // -REDPIG-ALTIMETER
+
+const uint8_t celsius[] = {
+  SEG_A | SEG_B | SEG_F | SEG_G,  // Circle
+  SEG_A | SEG_D | SEG_E | SEG_F   // C
+};
+const uint8_t hPa[] = {
+  SEG_F | SEG_E | SEG_C | SEG_G,  // h
+  SEG_A | SEG_F | SEG_G | SEG_E | SEG_D,   // P
+  SEG_A | SEG_B | SEG_C | SEG_E | SEG_F | SEG_G //A
+};
+const uint8_t data[] = { // -REDPIG-ALTIMETER
       SEG_G,                                  // -
       SEG_G, SEG_G,                            // r
       SEG_A | SEG_F | SEG_G | SEG_E | SEG_D|,SEF_B,  // e
@@ -59,7 +61,32 @@ void setup() {
       SEG_F | SEG_E,                  // I
       SEG_A | SEG_F | SEG_G | SEG_E | SEG_D | SEG,  // G
       SEG_A | SEG_F | SEG_G | SEG_C | SEG_D | SEG_C, // S
-      SEG_G,                                  // -
+      SEG_G,         
+  };
+
+
+//___________SETUP
+void setup() {
+  display.clear();    
+  display.setBrightness(5);  // Set the display brightness (0-7)
+  for (int i=0; i <= 9999; i++){
+     display.showNumberDec(i, true);  // i=value, true to padd the blank segments with 0
+     delay(10);
+  };
+
+  // -
+  for ( int i=0; i<(sizeof(data)-3); i++ ) {
+    display.setSegments(data+i); // Display the data
+    delay(500);
+  };
+
+  ////// Blink String
+  for ( int i=0; i<5; i++ ) {
+    display.setSegments(data+4); // Display the data
+    delay(400);
+    display.clear();             // Clear the display
+    delay(250);
+  };
     
   WiFi.begin(ssid, password);  // Connect to WiFi - defaults to WiFi Station mode
 
@@ -84,4 +111,7 @@ void loop() {
   ArduinoOTA.handle();  // Handles a code update request
 
   // All loop you're code goes here.
+
+
+  
 }
