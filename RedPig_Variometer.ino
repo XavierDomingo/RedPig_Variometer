@@ -28,6 +28,7 @@ IPAddress primaryDNS(8, 8, 8, 8); // optional
 IPAddress secondaryDNS(8, 8, 4, 4); // optional
 //OTA_______________________________________________________________________________________
 #include <ArduinoOTA.h>  // For enabling over-the-air updates
+#include <TelnetStream.h>jj
 //Display  4 DIGIT LCD 7 SEGMENTS __________________________________________________________
 #include <TM1637.h>
 
